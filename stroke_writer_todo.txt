@@ -1,0 +1,14 @@
+
+7-30-22
+- [X] make so only one load window shows up
+- [Χ] order buttons by alphabet in load window
+- [X] hide prompt when screen cleared
+
+
+
+
+
+
+
+- [ ] check out how to make an iphone/android app????
+- [ ] check out how to make a proper computer app????

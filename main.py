@@ -9,6 +9,8 @@ from os.path import exists
 root = Tk()
 root.geometry("700x400")
 
+choose_window = None
+
 def close_window(window):
     window.destroy()
 
@@ -116,20 +118,16 @@ class Stroke_canvas(Canvas):
         self.show_outline()
 
     def load_strokes(self):
-        # choose_window = Toplevel(root)
-        # choose_bttn = ttk.Button(choose_window, text="A").grid(row=0, column=0)
         self.show_load_options()
 
-        # if (exists(self.csvfile_name)):
-        #     pass
-        # else:
-        #     close_window(choose_window)
-
     def show_load_options(self):
-        choose_window = Toplevel(root)
+        global choose_window
+        if not choose_window:
+            choose_window = Toplevel(root)
         col_ct = 0
         row_ct = 0
         button_ids = []
+        
         with open(self.csvfile_name, 'r', newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
@@ -137,12 +135,13 @@ class Stroke_canvas(Canvas):
                 button_id = ttk.Button(choose_window, text=button_letter, command = lambda text=button_letter:self.set_current_letter(text))
                 button_ids.append(button_id)
 
-            for bid in button_ids:
-                bid.grid(column=col_ct, row=row_ct)
-                col_ct +=1
-                if col_ct > 4:
-                    col_ct = 0
-                    row_ct += 1
+        sorted_button_ids = sorted(button_ids, key=lambda x: x.cget('text'))    
+        for bid in sorted_button_ids:
+            bid.grid(column=col_ct, row=row_ct)
+            col_ct +=1
+            if col_ct > 4:
+                col_ct = 0
+                row_ct += 1
                 
     def show_outline(self):
         if self.letter_loaded:
@@ -161,8 +160,6 @@ class Stroke_canvas(Canvas):
                                     self.create_line(*stroke.split(';'), 
                                         width=3, fill="grey")
                     
-
-
     def change_pt_color_to_red(self, event):
         self.point_color = 'red'
 
@@ -189,6 +186,10 @@ sketch.grid(column=0, row=0, columnspan=4, rowspan=2)
 sketch.grid_propagate(0)
 # sketch.grid(column=0, row=0, columnspan=4, rowspan=2)
 
+def clear_all():
+    clear_canvas()
+    clear_hint()
+
 def clear_canvas():
     sketch.delete('all')
     sketch.draw_hor_guides()
@@ -196,6 +197,8 @@ def clear_canvas():
     stroke_number_var.set(0)
     stroke_num_lbl.config(text="Stroke: ")
     sketch.clear_stroke()
+
+def clear_hint():
     hint_lbl['text'] = ''
 
 show_outline_bttn = ttk.Checkbutton(content, text="Outline", 
@@ -204,7 +207,7 @@ show_arrows_bttn = ttk.Checkbutton(content, text="Arrows",
     variable=show_arrows_var, onvalue=True, command=sketch.show_outline)
 
 clear_stroke_bttn = ttk.Button(content, text="Clear Stroke", command=sketch.clear_written_strokes)
-clear_bttn = ttk.Button(content, text="Clear All", command=clear_canvas)
+clear_bttn = ttk.Button(content, text="Clear All", command=clear_all)
 load_bttn = ttk.Button(content, text="Load", command=sketch.load_strokes)
 store_bttn = ttk.Button(content, text="Store", command=sketch.handle_stroke_storage)
 exit_bttn = ttk.Button(content, text="Exit", command=lambda: close_window(root))
