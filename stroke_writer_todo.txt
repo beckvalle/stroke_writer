@@ -1,5 +1,7 @@
 
 7-30-22
+- [ ] center and fix size of drawing screen
+
 - [X] make so only one load window shows up
 - [Χ] order buttons by alphabet in load window
 - [X] hide prompt when screen cleared

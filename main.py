@@ -42,6 +42,12 @@ class Stroke_canvas(Canvas):
         self.loaded_stroke_id_holder = []
 
         self.setup_language()
+
+        self.pack(side="top", fill="both", expand=True)
+        self.configure(scrollregion=(-400, -400, 400, 400))
+        self.create_rectangle(-390,-390,390,390, fill="blue", outline="black")
+        # self.create_rectangle(-10,-10,10,10, fill="red", outline="black")
+
         self.draw_vert_grid()
         self.draw_hor_guides()
         # bind mouse movement to draw functions within canvas
@@ -52,6 +58,7 @@ class Stroke_canvas(Canvas):
         self.bind("<B1-ButtonRelease>", self.change_pt_color_to_red)
         self.bind("<B1-ButtonRelease>", self.add_circle, add='+')
         self.bind("<B1-ButtonRelease>", self.increment_stroke, add='+')
+
 
     def save_posn(self, event):
         self.lastx, self.lasty = event.x, event.y
@@ -175,12 +182,12 @@ class Stroke_canvas(Canvas):
         self.create_line((150, 0, 150, 400), width=3, fill='light grey',  dash=(10,5))
         self.create_line((250, 0, 250, 400), width=3, fill='light grey',  dash=(10,5))
 
-content = ttk.Frame(root, padding=(3,3,12,12))
+content = ttk.Frame(root, padding=(3,3,6,6))
 name_lbl = ttk.Label(content, text="Prompt: ")
 hint_lbl = ttk.Label(content, font=("Arial", 50))
 stroke_num_lbl = ttk.Label(content, text="Stroke: ")
 
-sketch = Stroke_canvas(content, language="EN", height=100, width=400)
+sketch = Stroke_canvas(content, language="EN", height=20, width=40)
 # sketch.grid(column=0, row=0, columnspan=4, rowspan=2, sticky=(N, W, E, S))
 sketch.grid(column=0, row=0, columnspan=4, rowspan=2)
 sketch.grid_propagate(0)
@@ -224,12 +231,12 @@ store_bttn.grid(column=5, row=3)
 exit_bttn.grid(column=6, row=3)
 
 root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
+root.rowconfigure(0, weight=1, minsize=400)
 content.grid(column=0, row=0)
-content.columnconfigure(0, weight=3)
-content.columnconfigure(1, weight=3)
-content.columnconfigure(2, weight=3)
-content.columnconfigure(3, weight=1)
+content.columnconfigure(0, weight=3, minsize=100)
+content.columnconfigure(1, weight=3, minsize=100)
+content.columnconfigure(2, weight=3, minsize=100)
+content.columnconfigure(3, weight=1, minsize=100)
 content.columnconfigure(4, weight=1)
 content.columnconfigure(5, weight=1)
 content.columnconfigure(6, weight=1)
