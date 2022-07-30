@@ -1,3 +1,0 @@
-tk resources
-
-https://tkdocs.com/tutorial/canvas.html
