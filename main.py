@@ -5,32 +5,29 @@ from tkinter import *
 from tkinter import ttk
 from os.path import exists
 
-# create the main application window
-root = Tk()
-root.geometry("700x400")
-
-choose_window = None
-
 def close_window(window):
     window.destroy()
 
-show_outline_var = BooleanVar()
-show_arrows_var = BooleanVar()
-stroke_number_var = IntVar()
-current_letter_var = StringVar()
+def clear_all():
+    clear_canvas()
+    clear_hint()
 
-show_outline_var.set(True)
-show_arrows_var.set(True)
-stroke_number_var.set(0)
-current_letter_var.set('')
+def clear_canvas():
+    sketch.delete('all')
+    sketch.draw_hor_guides()
+    sketch.draw_vert_grid()
+    stroke_number_var.set(0)
+    stroke_num_lbl.config(text="Stroke: ")
+    sketch.clear_stroke()
+
+def clear_hint():
+    hint_lbl['text'] = ''
 
 class Stroke_canvas(Canvas):
 
-    def __init__(self, parent, language, height, width, **kwargs):
+    def __init__(self, parent, language, **kwargs):
         super().__init__(parent, **kwargs)
         self.language = language
-        self.height = height
-        self.width = width
         self.csvfile_name = self.language+'_stk.csv'
         self.fieldnames = ["symbol_name", "strokes"]
         self.letter_loaded = False
@@ -42,14 +39,12 @@ class Stroke_canvas(Canvas):
         self.loaded_stroke_id_holder = []
 
         self.setup_language()
-
-        self.pack(side="top", fill="both", expand=True)
-        self.configure(scrollregion=(-400, -400, 400, 400))
-        self.create_rectangle(-390,-390,390,390, fill="blue", outline="black")
-        # self.create_rectangle(-10,-10,10,10, fill="red", outline="black")
-
-        self.draw_vert_grid()
-        self.draw_hor_guides()
+        self.create_rectangle(0,0,5,5, outline="magenta")
+        self.create_rectangle(400,400,405,405, outline="red")
+        self.create_rectangle(3,3,402,402, outline="blue")
+        self.create_rectangle(2,2,403,403, outline="black")
+        # self.draw_vert_grid()
+        # self.draw_hor_guides()
         # bind mouse movement to draw functions within canvas
         self.bind("<Button-1>", self.save_posn)
         self.bind("<Button-1>", self.change_pt_color_to_red, add='+')
@@ -182,49 +177,74 @@ class Stroke_canvas(Canvas):
         self.create_line((150, 0, 150, 400), width=3, fill='light grey',  dash=(10,5))
         self.create_line((250, 0, 250, 400), width=3, fill='light grey',  dash=(10,5))
 
-content = ttk.Frame(root, padding=(3,3,6,6))
-name_lbl = ttk.Label(content, text="Prompt: ")
-hint_lbl = ttk.Label(content, font=("Arial", 50))
-stroke_num_lbl = ttk.Label(content, text="Stroke: ")
+###################################
+###################################
 
-sketch = Stroke_canvas(content, language="EN", height=20, width=40)
-sketch.grid(column=0, row=0)
 
-def clear_all():
-    clear_canvas()
-    clear_hint()
+# create the main application window
+root = Tk()
+root.geometry("700x400")
 
-def clear_canvas():
-    sketch.delete('all')
-    sketch.draw_hor_guides()
-    sketch.draw_vert_grid()
-    stroke_number_var.set(0)
-    stroke_num_lbl.config(text="Stroke: ")
-    sketch.clear_stroke()
+choose_window = None
 
-def clear_hint():
-    hint_lbl['text'] = ''
+show_outline_var = BooleanVar()
+show_arrows_var = BooleanVar()
+stroke_number_var = IntVar()
+current_letter_var = StringVar()
 
-show_outline_bttn = ttk.Checkbutton(content, text="Outline", 
+show_outline_var.set(True)
+show_arrows_var.set(True)
+stroke_number_var.set(0)
+current_letter_var.set('')
+
+content = ttk.Frame(root)
+content.grid(column=0, row=0)
+
+stroke_window = ttk.Frame(content)
+stroke_window.grid(column=0, row=0)
+
+stroke_canvas = ttk.Frame(stroke_window)
+stroke_canvas.grid(column=0, row=0)
+
+stroke_options = ttk.Frame(stroke_window)
+stroke_options.grid(column=0, row=1)
+
+info_frame = ttk.Frame(content)
+
+name_lbl = ttk.Label(info_frame, text="Prompt: ")
+hint_lbl = ttk.Label(info_frame, font=("Arial", 50))
+stroke_num_lbl = ttk.Label(info_frame, text="Stroke: ")
+
+sketch = Stroke_canvas(stroke_canvas, width=400, height=400, language="EN")
+sketch.grid()
+
+button_frame = ttk.Frame(content)
+
+show_outline_bttn = ttk.Checkbutton(stroke_options, text="Outline", 
     variable=show_outline_var, onvalue=True, command=sketch.show_outline)
-show_arrows_bttn = ttk.Checkbutton(content, text="Arrows", 
+show_arrows_bttn = ttk.Checkbutton(stroke_options, text="Arrows", 
     variable=show_arrows_var, onvalue=True, command=sketch.show_outline)
+clear_stroke_bttn = ttk.Button(stroke_options, text="Clear Stroke", command=sketch.clear_written_strokes)
+clear_bttn = ttk.Button(stroke_options, text="Clear All", command=clear_all)
 
-clear_stroke_bttn = ttk.Button(content, text="Clear Stroke", command=sketch.clear_written_strokes)
-clear_bttn = ttk.Button(content, text="Clear All", command=clear_all)
-load_bttn = ttk.Button(content, text="Load", command=sketch.load_strokes)
-store_bttn = ttk.Button(content, text="Store", command=sketch.handle_stroke_storage)
-exit_bttn = ttk.Button(content, text="Exit", command=lambda: close_window(root))
+show_outline_bttn.grid(column=0, row=1)
+show_arrows_bttn.grid(column=1, row=1)
+clear_stroke_bttn.grid(column=2, row=1)
+clear_bttn.grid(column=3, row=1)
 
-# name_lbl.grid(column=1, row=0)
-# hint_lbl.grid(column=1, row=1)
-# stroke_num_lbl.grid(column=1, row=2)
-# show_outline_bttn.grid(column=0, row=1)
-# show_arrows_bttn.grid(column=1, row=1)
-# clear_stroke_bttn.grid(column=2, row=1)
-# clear_bttn.grid(column=3, row=1)
-# load_bttn.grid(column=4, row=1)
-# store_bttn.grid(column=5, row=1)
-# exit_bttn.grid(column=6, row=1)
+load_bttn = ttk.Button(button_frame, text="Load", command=sketch.load_strokes)
+store_bttn = ttk.Button(button_frame, text="Store", command=sketch.handle_stroke_storage)
+exit_bttn = ttk.Button(button_frame, text="Exit", command=lambda: close_window(root))
+
+info_frame.grid(column=1, row=0)
+button_frame.grid(column=0, row=1)
+
+name_lbl.grid(column=0, row=0)
+hint_lbl.grid(column=0, row=1)
+stroke_num_lbl.grid(column=0, row=2)
+
+load_bttn.grid(column=2, row=1)
+store_bttn.grid(column=3, row=1)
+exit_bttn.grid(column=4, row=1)
 
 root.mainloop()
